@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Music Recommender</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <nav>
+        <h1>Music Recommender</h1>
+    </nav>
+
+    <input type="file" id="imageInput" accept="image/*" />
+    
+    <div class="pc">
+        <div class="photo">
+            <img id="selectedImage" src="" alt="Selected Image" />
+        </div>
+    </div>
+    
+    <div id="butt">
+        <button id="recommendButton">Get Music Recommendations</button>
+    </div>
+
+    <div id="musicRecommendations">
+        <ul id="songList" class="music-list"></ul>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const selectedImage = document.getElementById('selectedImage');
+        const recommendButton = document.getElementById('recommendButton');
+        const songList = document.getElementById('songList');
+        let imageData = null;
+
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedImage.src = e.target.result;
+                    imageData = file;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        recommendButton.addEventListener('click', function() {
+            if (imageData) {
+                const formData = new FormData();
+                formData.append('image', imageData);
+
+                fetch('/recommend', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    songList.innerHTML = '';
+                    data.forEach(song => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <strong>${song.name}</strong> by ${song.artist}<br>
+                            <iframe src="https://open.spotify.com/embed/track/${song.id}" width="300" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        `;
+                        songList.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
