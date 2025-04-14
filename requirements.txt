@@ -3,4 +3,4 @@ gunicorn
 transformers
 torch
 spotipy
-PIL
+Pillow
