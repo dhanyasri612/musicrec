@@ -1,5 +1,4 @@
 flask
-gradio
 transformers
 torch
 spotipy
